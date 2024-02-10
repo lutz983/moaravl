@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <style>
+    .legend {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: white;
+      padding: 10px;
+      border: 2.5px solid #060303;
+      font: 16px Bahnschrift, 'sans-serif';
+    }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <div id="legend" class="legend">
+    <h3>Legenda</h3>
+    <div style="color: blue;">Albastru: 0-1m</div>
+    <div style="color: green;">Verde: 1-3m</div>
+    <div style="color: yellow;">Galben: 3-5m</div>
+    <div style="color: orange;">Portocaliu: 5-10m</div>
+    <div style="color: red;">Rosu: >10m</div>
+  </div>
+  <script type="module">
+    // Initialize the Cesium Viewer with a CesiumTerrainProvider
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+    terrainProvider: new Cesium.EllipsoidTerrainProvider({
+        ellipsoid: Cesium.Ellipsoid.WGS84
+    }),
+    requestVertexNormals: false, // Dezactivați terenul de înaltă rezoluție
+    // Alte opțiuni aici...
+});
+
+
+
+    var geoJsonUrl = 'http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3Ainaltime_cladiri_4326&outputFormat=application%2Fjson';
+  var geoJsonDataSource = new Cesium.GeoJsonDataSource ('geoJsonDataSource');
+   geoJsonDataSource.load(geoJsonUrl).then(function() {
+    viewer.dataSources.add(geoJsonDataSource);
+
+   
+   var entities = geoJsonDataSource.entities.values;
+   var ColorHash = {};
+   for (var i = 0; i < entities.length; i++) {
+    var entity = entities[i];
+    var name = entity.Nume;
+    var heightValue = entity.properties.Inaltime;
+    if (heightValue < 1) {
+            entity.polygon.material = Cesium.Color.BLUE;
+        } else if (heightValue >= 1 && heightValue < 3) {
+            entity.polygon.material = Cesium.Color.GREEN;
+        }
+          else if(heightValue >=3 && heightValue < 5) {
+            entity.polygon.material = Cesium.Color.YELLOW;
+          }
+          else if( heightValue >=5 && heightValue <10) {
+            entity.polygon.material = Cesium.Color.ORANGE;
+          }
+        else if (heightValue >=10){
+            entity.polygon.material = Cesium.Color.RED;
+        }
+    
+    entity.polygon.outline = false;
+    entity.polygon.extrudedHeight = entity.properties.Inaltime * 5;
+    
+    
+   
+   }
+
+   }) ;
+
+
+   var MoaraVlasieiUrl = 'http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3AMvl_4326&outputFormat=application%2Fjson';
+   var MoaraVlasieiSource = new Cesium.GeoJsonDataSource ('MoaraVlasieiSource');
+   MoaraVlasieiSource.load(MoaraVlasieiUrl).then(function() {
+   viewer.dataSources.add(MoaraVlasieiSource);
+   var entities = MoaraVlasieiSource.entities.values;
+   
+   for (var i = 0; i < entities.length; i++) {
+    var entity = entities[i];
+    entity.polygon.fill = false; 
+    entity.polygon.outline = true; 
+    entity.polygon.outlineColor = Cesium.Color.YELLOW;
+    entity.polygon.outlineWidth = 20;
+ 
+   }
+}) ;
+
+viewer.zoomTo(geoJsonDataSource);
+
+
+  </script>
+</body>
+</html>
