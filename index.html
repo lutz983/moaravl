@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disertație</title>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://unpkg.com/@raruto/leaflet-elevation/dist/leaflet-elevation.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
+  <style>
+    
+    #map {
+      height: 800px;
+      position: relative;
+    }
+   
+    #cesium-container {
+      display: none;
+      height: 800px;
+      position: relative;
+    }
+    #graphics{
+      display: none;
+      height: 800px;
+    }
+    #coordinates-display{
+      bottom:15px;
+      left:800px;
+      position: absolute;
+      z-index: 1000;
+      font-family: 'Bahnschrift', sans-serif;
+      font-size: 14px;
+    }
+    #legend {
+      position: absolute;
+      top: 200px;
+      left: 40px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 10px;
+      z-index: 1000;
+      font-family: 'Bahnschrift', sans-serif;
+      color: black;
+      display: none;
+      }
+  
+      .legend-item {
+      margin-bottom: 5px;
+    }
+    .legend-color {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+    .legend-value {
+      display: inline-block;
+    }
+    .leaflet-control-layers-selector {
+      margin-right: 5px;
+      background-color: blue !important;  /* Spațiere între casetele de selectare */
+      border: 1px solid #00d185 !important;  /* Schimbă culoarea bordurii */
+      border-radius: 10px; 
+    }
+    .leaflet-control-layers-toggle {
+      background-color:#e80606; /* Culorile de fundal pentru butonul de deschidere a controlului */
+      border: 2px solid #ccc; /* Bordura butonului de deschidere */
+      border-radius: 35px; /* Rotunjirea colțurilor butonului de deschidere */
+    }
+
+    /* Stilizare pentru etichetele de straturi */
+    .leaflet-control-layers-list {
+      padding: 5px; /* Spațierea în interiorul listei de straturi */
+   
+    }
+    
+    .leaflet-control-layers-base label {
+      display: block; /* Așezare verticală pentru etichete */
+      margin-bottom: 5px; /* Spațiere între etichete */
+      font-family: Bahnschrift, sans-serif; /* Font pentru etichete */
+      color:black
+    }
+
+    .leaflet-control-layers-separator {
+      border-top: 1px solid #ccc; /* Linie separată între straturi */
+      margin-top: 10px; /* Spațierea între separator și straturi */
+      margin-bottom: 10px; /* Spațierea între separator și straturi */
+    }
+
+    .leaflet-control-layers-overlays label {
+      margin-left: 20px;
+      font-family: Bahnschrift, sans-serif; /* Indentare pentru straturile suprapuse */
+      color:#141414
+    }
+    #energiaDeRelief {
+  position: absolute;
+  text-align: left;
+  left: 200px;
+  top:150px;
+  z-index: 1000;
+  background-color: white;
+  border-radius: 10px;
+  font-family: Bahnschrift, sans-serif;
+  width: 150px;
+  opacity: 0.85;
+  display: none;
+}
+
+.navbar {
+            background-color: #333;
+            overflow: hidden;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 500;
+            display: flex;
+  justify-content: space-between;
+  align-items:center;
+  padding: 10px;
+  
+
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-family: Bahnschrift;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .navbar #toggleButton {
+            float: right; /* Aliniere la dreapta */
+            padding: 14px 20px;
+            background-color: #333;
+            color: #f2f2f2;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .navbar #toggleButton:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .navbar #Button{
+          float: right;
+          padding: 14px 20px;
+            background-color: #333;
+            color: #f2f2f2;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .navbar #Button:hover {
+            background-color: #ddd;
+            color: black; }
+        
+    #map-author{
+      font-family: Bahnschrift;
+      position: absolute;
+      bottom: 34px;
+      right:10px;
+      z-index: 1000;
+    }
+    
+    .highlight {
+    fill-opacity: 0.7;
+    stroke: #e8e8e8;
+    stroke-width: 2;
+}
+
+#species-select{
+    position: absolute;
+    top: 120px;
+    left: 70px;
+    z-index: 1000;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    font-family: 'Bahnschrift', sans-serif;
+}
+
+#deselect-species-btn {
+    position: absolute;
+    top: 120px; /* Ajustați poziția verticală după nevoie */
+    left: 340px; /* Ajustați poziția orizontală după nevoie */
+    z-index: 1000;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Bahnschrift', sans-serif;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+
+#deselect-species-btn:hover {
+    background-color: #030b04; /* Culoare de fundal la interacțiunea cu cursorul */
+}
+#deselect-species-btn:hover::after {
+    content: "Deselectează toate straturile"; /* Textul afișat la hover */
+    position: absolute;
+    top: -30px; /* Poziționare deasupra butonului */
+    left: 0;
+    background-color: #000;
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    opacity: 0; /* Inițial invizibil */
+    transition: opacity 0.3s; /* Efect de tranziție pentru opacitate */
+    font-family: 'Bahnschrift', sans-serif;
+}
+#deselect-species-btn:hover::after {
+    opacity: 1; /* Faceți textul vizibil la hover */
+}
+.leaflet-popup-content {
+    font-family: Bahnschrift, sans-serif;
+}
+
+
+  </style>
+</head>
+<body>
+<div id="map">
+  <button onclick="downloadGeoJSON()">Descarcă GeoJSON</button>
+
+</div>
+  <div id="cesium-container"> 
+</div>
+  <div id="graphics"></div>
+  <div id="coordinates-display"></div>
+    <div id="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #0a8a30;"></div>
+        <div class="legend-value">75-85m</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #1cff00;"></div>
+        <div class="legend-value">85-87m</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #ffe300;"></div>
+        <div class="legend-value">87-89m</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #ea7f15;"></div>
+        <div class="legend-value">89-91m</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #141414;"></div>
+        <div class="legend-value">91-94m</div>
+      </div>
+    </div>
+
+    <div id="energiaDeRelief">
+      <strong> Energia de relief : </strong><br>
+      <div></style><span style="background-color: #0e6630; display: inline-block; width: 20px; height: 10px;"></span> 0 - 0.7m</div>
+      <div><span style="background-color: #27934d; display: inline-block; width: 20px; height: 10px;"></span> 0.7 - 1.8m</div>
+      <div><span style="background-color: #55ac38; display: inline-block; width: 20px; height: 10px;"></span> 1.8 - 3.4m</div>
+      <div><span style="background-color: #e4dfaf; display: inline-block; width: 20px; height: 10px;"></span> 3.4 - 6m</div>
+      <div><span style="background-color: #e6ca94; display: inline-block; width: 20px; height: 10px;"></span> 6 - 10.8m</div>
+      <div><span style="background-color: #b59880 ; display: inline-block; width: 20px; height: 10px;"></span> 10.8 - 13.5m</div>
+      <div><span style="background-color: #795c05 ; display: inline-block; width: 20px; height: 10px;"></span> 13.5 - 15m</div>
+    </div>
+    <div class="navbar">
+      <a href="Acasă">Acasă</a>
+      <a href="#about">Despre</a>
+      <a href="#contact">Contact</a>
+      <button id="toggleButton">3D</button>
+      <button id="Button">Dashboard demografic</button>
+      </div>
+    </div>
+    
+  <div id="map-author">&copy Autor</div>
+
+  <select id="species-select"> </select>
+  <button id="deselect-species-btn" type="button">X</button>
+
+
+   
+   
+ 
+    <script>
+    var leafletMap = L.map('map').setView([44.65, 26.20], 13);
+    
+var OSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(leafletMap);
+
+var NaturalEarth = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}',
+{maxZoom:13,
+  attribution: '© Natural Earth | contributors'
+}).addTo(leafletMap);
+
+   var scaleControl = L.control.scale({position:"bottomleft"}).addTo(leafletMap);
+
+leafletMap.on('mousemove', function(event) {
+    var lat = event.latlng.lat.toFixed(4); // Latitudinea cu 5 zecimale
+    var lng = event.latlng.lng.toFixed(4); // Longitudinea cu 5 zecimale
+    var coordinatesDisplay = document.getElementById('coordinates-display');
+    coordinatesDisplay.innerHTML = lat + '&nbsp; &nbsp; &nbsp;' + lng;
+});
+
+// Initialize Cesium scene (but keep it hidden initially)
+    var cesiumViewer = new Cesium.Viewer('cesium-container', {
+      terrainProvider: new Cesium.EllipsoidTerrainProvider({
+        ellipsoid: Cesium.Ellipsoid.WGS84
+      }),
+      animation: false,
+      baseLayerPicker: true,
+      fullscreenButton: false,
+      geocoder: false,
+      homeButton: false,
+      infoBox: true,
+      sceneModePicker: true,
+      navigationHelpButton: false,
+      timeline: false
+    });
+
+    cesiumViewer.scene.camera.setView({
+    destination : Cesium.Cartesian3.fromDegrees(44.65, 26.20, 200000), // Set the initial position
+    orientation: {
+        heading : Cesium.Math.toRadians(0), // Set the heading angle in radians (0 for north)
+        pitch : Cesium.Math.toRadians(-45), // Set the pitch angle in radians (-90 to 90)
+        roll : 0.0 // Set the roll angle in radians
+    }
+});
+
+ // Obțineți referința către div-ul care conține vizualizatorul Cesium
+var cesiumContainer = document.getElementById('cesium-container');
+
+
+
+var tiltUpBtn = document.createElement('button');
+tiltUpBtn.textContent = 'Înclinare Sus';
+tiltUpBtn.className = 'nav-btn'; // Adăugați clasa de stilizare
+
+var tiltDownBtn = document.createElement('button');
+tiltDownBtn.textContent = 'Înclinare Jos';
+tiltDownBtn.className = 'nav-btn'; // Adăugați clasa de stilizare
+
+
+cesiumContainer.appendChild(tiltUpBtn);
+cesiumContainer.appendChild(tiltDownBtn);
+
+// Funcția pentru înclinarea în sus
+function tiltUp() {
+    cesiumViewer.scene.camera.lookUp(Cesium.Math.toRadians(10)); // Înclinare în sus cu 10 grade
+}
+
+// Funcția pentru înclinarea în jos
+function tiltDown() {
+    cesiumViewer.scene.camera.lookDown(Cesium.Math.toRadians(10)); // Înclinare în jos cu 10 grade
+}
+
+
+tiltUpBtn.addEventListener('click', tiltUp);
+tiltDownBtn.addEventListener('click', tiltDown);
+
+
+// Aplicați stilurile necesare pentru butoane
+tiltUpBtn.style.position = 'absolute';
+tiltUpBtn.style.bottom = '30px';
+tiltUpBtn.style.left = '10px';
+tiltUpBtn.style.zIndex = '9999';
+tiltUpBtn.style.fontFamily = 'Bahnschrift', 'sans-serif';
+tiltUpBtn.style.borderRadius = '50%'
+// Continuați cu stilurile pentru celelalte butoane...
+tiltDownBtn.style.position = 'absolute';
+tiltDownBtn.style.bottom = '30px';
+tiltDownBtn.style.left = '120px';
+tiltDownBtn.style.zIndex = '9999';
+tiltDownBtn.style.fontFamily = 'Bahnschrift', 'sans-serif';
+tiltDownBtn.style.borderRadius = '50%'
+
+
+
+var imageryProvider = new Cesium.WebMapServiceImageryProvider({
+    url: 'http://localhost:8080/geoserver/wms',
+    layers: 'drumuri_4326',
+    parameters: {
+        format: 'image/png',
+        transparent: true
+    }
+});
+var wmsLayer = cesiumViewer.imageryLayers.addImageryProvider(imageryProvider);
+
+// Define the URL of the GeoJSON data on the GeoServer
+var geoJsonUrl = 'http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3AMvl_4326&maxFeatures=50&outputFormat=application%2Fjson';
+
+// Adăugați datele GeoJSON din GeoServer în Cesium
+var geoJsonDataSource = new Cesium.GeoJsonDataSource();
+
+// Încărcați datele GeoJSON și aplicați stilurile
+geoJsonDataSource.load(geoJsonUrl).then(function() {
+  // Obțineți entitățile GeoJSON
+  var entities = geoJsonDataSource.entities.values;
+
+  // Iterați prin fiecare entitate și setați stilurile corespunzătoare
+  entities.forEach(function(entity) {
+    // Setați umplerea și marginea entității la transparent (opacitate zero)
+    entity.polygon.fill = Cesium.Color.TRANSPARENT;
+    entity.polygon.outline = true;
+    entity.polygon.outlineColor = Cesium.Color.YELLOW;
+  });
+
+  // Adăugați datele GeoJSON la vizualizatorul Cesium
+  cesiumViewer.dataSources.add(geoJsonDataSource);
+  
+});
+
+var geoJsonUrl2 = 'http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3Ainaltime_cladiri_4326&outputFormat=application%2Fjson';
+
+var geoJsonDataSource2 = new Cesium.GeoJsonDataSource('geoJsonDataSource2');
+
+geoJsonDataSource2.load(geoJsonUrl2).then(function() {
+    cesiumViewer.dataSources.add(geoJsonDataSource2);
+
+    var entities = geoJsonDataSource2.entities.values;
+
+    for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+      
+
+        var name = entity.properties.Nume;
+
+        var heightValue = entity.properties.Inaltime;
+
+        if (heightValue < 1) {
+            entity.polygon.material = Cesium.Color.BLUE;
+        } else if (heightValue >= 1 && heightValue < 3) {
+            entity.polygon.material = Cesium.Color.GREEN;
+        } else if (heightValue >= 3 && heightValue < 5) {
+            entity.polygon.material = Cesium.Color.YELLOW;
+        } else if (heightValue >= 5 && heightValue < 10) {
+            entity.polygon.material = Cesium.Color.ORANGE;
+        } else if (heightValue >= 10) {
+            entity.polygon.material = Cesium.Color.RED;
+        }
+
+        entity.polygon.outline = false;
+        entity.polygon.extrudedHeight = heightValue * 5; // Presupunând că "Inaltime" este înălțimea entității
+
+       
+
+    // Faceți zborul către noul strat GeoJSON adăugat
+    cesiumViewer.flyTo(geoJsonDataSource2);
+}});
+
+
+
+ var toggleButton = document.getElementById('toggleButton');
+    toggleButton.addEventListener('click', function() {
+      var mapDiv = document.getElementById('map');
+      var cesiumContainerDiv = document.getElementById('cesium-container');
+
+      if (mapDiv.style.display !== 'none') {
+        // Leaflet map is currently visible, switch to Cesium
+        mapDiv.style.display = 'none';
+        cesiumContainerDiv.style.display = 'block';
+        toggleButton.textContent = '2D'
+      } else {
+        // Cesium map is currently visible, switch to Leaflet
+        cesiumContainerDiv.style.display = 'none';
+        mapDiv.style.display = 'block';
+        toggleButton.textContent = '3D'
+      }
+    });
+   
+    var dem = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Dem_mask', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+    opacity:1
+}).addTo(leafletMap);
+
+dem.on('click', function(event) {
+    var legendDiv = document.getElementById('legend');
+
+    // Verificați dacă legenda este deja vizibilă
+    if (legendDiv.style.display === 'block') {
+        // Dacă este vizibil, ascunde-l
+        legendDiv.style.display = 'none';
+    } else {
+        // Dacă nu este vizibil, afișați-l
+        legendDiv.style.display = 'block';
+    }
+});
+
+var curbeDeNivel5m = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Curbe_de_nivel_5m', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+  
+}).addTo(leafletMap);
+
+var energiaDeRelief = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Energia_de_relief', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var CurbdeDeNivel1m = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Curbe_de_nivel_1m_clip', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var Pante = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Pante_Moara_Vlasiei', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var unitatiDeRelief =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Unitati_de_relief_Moara Vlasiei', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var expozitiaVersantilor =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Expozitia_versantilor', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var ape = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Poligon_ape', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var bazineHidrografice = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:bazine_hidrografice', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var baraje = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:baraje', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var soluri =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Soluri_Moara_Vlasiei', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var drumuri =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:drumuri_stil', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var statiiautobuz =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:statii_autobuz', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var arieInfluentaStatii =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Voronoi_Polygons', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var paduri =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:păduri_înălțime', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var situri = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Situri_Natura2000_MoaraVlasiei', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var localitati = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:localitati_moara_vlasiei_planurile_directoare', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var utilizareaTerenului =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:Utilizarea_terenului', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var suprafataComunei2018 =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:suprafața_comunei_2018', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var suprafataComunei2020 =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:suprafața_comunei_2020', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var suprafataComunei2022 =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:suprafața_comunei_2022', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var cladiri =  L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+    layers: 'gis:inaltime_cladiri_4326', // Înlocuiește cu numele stratului din GeoServer
+    format: 'image/png', // Formatul imaginii (poate fi și 'image/jpeg', depinde de configurare)
+    transparent: true, // Specifică dacă stratul este transparent sau nu
+}).addTo(leafletMap);
+
+var geojsonLayer = L.geoJSON(null, {
+    style: function(feature) {
+    
+        return {
+            color: 'red',
+            fillColor: 'white',
+            weight: 2,
+            fillOpacity: 1
+        };
+    },
+    onEachFeature: function(feature, layer) {
+        if (feature.properties && feature.properties['DEN POP']) {
+            layer.bindPopup(feature.properties['DEN POP'], {
+                fontFamily: 'Bahnschrift' // Corecție: includerea opțiunii fontFamily în obiectul opțiunilor pop-up
+            });
+        }
+    }
+}).addTo(leafletMap);
+
+
+// Încărcarea datelor GeoJSON și adăugarea lor la stratul GeoJSON
+fetch('http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3Adistributia_speciilor&maxFeatures=50&outputFormat=application%2Fjson')
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        geojsonLayer.addData(data);
+        generateSpeciesOptions();
+    });
+
+var availableSpecies = {};
+
+// Funcție pentru a genera opțiunile meniului de selecție a speciilor
+function generateSpeciesOptions() {
+    geojsonLayer.eachLayer(function(layer) {
+        var species = layer.feature.properties['DEN POP'];
+        availableSpecies[species] = layer;
+    });
+
+    var selectElement = document.getElementById('species-select');
+    Object.keys(availableSpecies).forEach(function(species) {
+        var option = document.createElement('option');
+        option.value = species;
+        option.textContent = species;
+        selectElement.appendChild(option);
+    });
+}
+
+// Adăugați un ascultător de evenimente pentru meniul de selecție a speciilor
+document.getElementById('species-select').addEventListener('change', function() {
+    var selectedSpecies = this.value;
+    toggleSpeciesVisibility(selectedSpecies);
+});
+
+document.getElementById('deselect-species-btn').addEventListener('click', function() {
+    var selectElement = document.getElementById('species-select');
+    selectElement.innerHTML = ''; // Ștergeți toate opțiunile din caseta de selectare
+    selectElement.selectedIndex = -1; // Deselectați orice opțiune selectată implicit
+
+    // Reconstruiți lista de opțiuni
+    generateSpeciesOptions();
+
+    // Emiteți manual evenimentul 'change' pentru a actualiza vizualizarea straturilor pe hartă
+    var changeEvent = new Event('change');
+    selectElement.dispatchEvent(changeEvent);
+});
+
+function toggleSpeciesVisibility(species) {
+    // Eliminați toate straturile de pe hartă
+    Object.keys(availableSpecies).forEach(function(speciesName) {
+        leafletMap.removeLayer(availableSpecies[speciesName]);
+        availableSpecies[speciesName].setStyle({ className: '' }); // Eliminați orice stil adăugat
+    });
+
+    // Adăugați stratul speciei selectate pe hartă și evidențiați-o
+    if (availableSpecies[species]) {
+        availableSpecies[species].setStyle({ className: 'highlight' });
+        leafletMap.addLayer(availableSpecies[species]);
+    }
+}
+
+// Creează o grupare de caracteristici pentru straturile desenate
+var drawnItems = new L.FeatureGroup();
+leafletMap.addLayer(drawnItems);
+
+// Adaugă controlul de desenare pe hartă
+var drawControl = new L.Control.Draw({
+    draw: {
+        polyline: true,
+        polygon: true,
+        circle: true,
+        rectangle: true,
+        marker: true
+    },
+    edit: {
+        featureGroup: drawnItems
+    }
+});
+leafletMap.addControl(drawControl);
+
+// Ascultă evenimentul de finalizare a desenării
+leafletMap.on('draw:created', function(event) {
+    var layer = event.layer;
+    drawnItems.addLayer(layer);
+});
+
+// Funcție pentru a crea un fișier GeoJSON și pentru a permite utilizatorului să-l descarce
+function downloadGeoJSON() {
+    // Convertiți grupul de caracteristici în GeoJSON
+    var geojson = drawnItems.toGeoJSON();
+
+    // Convertiți obiectul GeoJSON într-un șir de caractere
+    var jsonString = JSON.stringify(geojson, null, 2);
+
+    // Creează un obiect Blob din șirul de caractere
+    var blob = new Blob([jsonString], { type: 'application/json' });
+
+    // Creează un element <a> pentru a descărca fișierul GeoJSON
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'drawn_layer.geojson';
+
+    // Simulează un clic pe link pentru a descărca fișierul
+    link.click();
+}
+
+
+
+
+
+
+var overlays = {
+  "MNAT": dem,
+  "Curbe de nivel - 5m": curbeDeNivel5m,
+  "Valorile energiei de relief": energiaDeRelief,
+  "Curbe de nivel - 1m": CurbdeDeNivel1m,
+  "Valorile pantei": Pante,
+  "Unități de relief": unitatiDeRelief,
+  "Expoziția versanților": expozitiaVersantilor,
+  "Râuri": ape,
+  "Bazine hidrografice": bazineHidrografice,
+  "Baraje": baraje,
+  "Tip soluri": soluri,
+  "Drumuri": drumuri,
+  "Statii autobuz": statiiautobuz,
+  "Aria de influenta - statii de autobuz": arieInfluentaStatii,
+  "Paduri": paduri,
+  "Situri Natura 2000": situri,
+  "Localitati planurile directoare de tragere": localitati,
+  "Utilizarea terenului": utilizareaTerenului,
+  "Suprafata comunei 2018": suprafataComunei2018,
+  "Suprafata comunei 2020": suprafataComunei2020,
+  "Suprafata comunei 2022": suprafataComunei2022,
+  "Cladiri":cladiri,
+  "Distributia speciilor":geojsonLayer
+};
+
+var basemaps = {
+  "Open Street Map": OSM,
+  "Natural Earth":NaturalEarth
+};
+
+
+
+var layerControl = L.control.layers(basemaps, overlays, {
+  collapsed: false
+}).addTo(leafletMap);
+
+leafletMap.on('layeradd', function(eventLayer) {
+  var overlayName = eventLayer.name;
+  if (overlays[overlayName]) {
+    layerControl.removeLayer(overlays[overlayName]);
+  }
+});
+
+leafletMap.on('layeradd', function(eventLayer) {
+  var overlayName = eventLayer.name;
+  if (overlays[overlayName]) {
+    layerControl.removeLayer(overlays[overlayName]);
+  }
+});
+// Dezactivează toate straturile la început
+for (var layerName in overlays) {
+  if (overlays.hasOwnProperty(layerName)) {
+    leafletMap.removeLayer(overlays[layerName]);
+  }
+}
+
+    const width = 1000;
+    const height = 400;
+    const margin = { top: 200, right: 20, bottom: 30, left: 40 };
+
+    // Creați elementul SVG
+    const svg = d3.select("#graphics")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    // Încărcați stratul GeoJSON din GeoServer
+    d3.json("http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3Anatalitate2&maxFeatures=50&outputFormat=application%2Fjson")
+        .then(function(data) {
+            // Extrageți valorile necesare pentru axa x și axa y
+            const values = data.features.map(feature => ({
+                x: feature.properties.An, // înlocuiți "xAttribute" cu numele atributului pentru axa x
+                y: feature.properties.Natalitate // înlocuiți "yAttribute" cu numele atributului pentru axa y
+            }));
+
+            // Definiți scala pentru axa x (presupunând că sunt date numerice)
+            const xScale = d3.scaleBand()
+                .domain(values.map(d => d.x))
+                .range([margin.left, width - margin.right])
+                .padding(0.1);
+
+            // Definiți scala pentru axa y
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(values, d => d.y)])
+                .nice()
+                .range([height - margin.bottom, margin.top]);
+
+                const tooltip = svg.append("text")
+    .attr("class", "tooltip")
+    .attr("x", 0)
+    .attr("y", 0)
+    .style("opacity", 0)
+    .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "12px"); // opțional: schimbați dimensiunea fontului
+
+
+            // Adăugați barele la grafic
+            svg.selectAll("rect")
+    .data(values)
+    .join("rect")
+    .attr("x", d => xScale(d.x))
+    .attr("y", d => yScale(d.y))
+    .attr("width", xScale.bandwidth())
+    .attr("height", d => yScale(0) - yScale(d.y))
+    .attr("fill", "lightgreen")
+    .on("mouseover", (event, d) => {
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+        tooltip.text(d.y)
+            .attr("x", xScale(d.x) + xScale.bandwidth() / 2)
+            .attr("y", yScale(d.y) - 10)
+            .attr("text-anchor", "middle");
+    })
+    .on("mouseout", (event, d) => {
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    });
+    svg.append("text")
+        .attr("x", (width / 2))   // Poziția orizontală a titlului (centrul SVG-ului)
+    .attr("y", (margin.top / 2))  // Poziția verticală a titlului (la jumătatea marginii de sus)
+    .attr("text-anchor", "middle")  // Alinierea textului la centru orizontal
+    .style("font-size", "20px")   // Dimensiunea fontului pentru titlu
+    .text("Natalitatea 1990-2022") // Textul titlului
+    .style("font-family", "Bahnschrift, sans-serif")
+
+
+                var customXAxis = function(g) {
+  g.call(d3.axisBottom(xScale)
+        .tickSizeOuter(0) // setează lungimea liniilor de marcaj externe la 0 pentru a elimina aceste liniile
+        .tickFormat(d3.format("d"))); // formatează etichetele ca numere întregi
+}
+            // Adăugați axa x
+            svg.append("g")
+                .attr("transform", `translate(0,${height - margin.bottom})`)
+                .call(customXAxis)
+                .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "10px"); // opțional: schimbați dimensiunea fontului
+
+            // Adăugați axa y
+            svg.append("g")
+                .attr("transform", `translate(${margin.left},0)`)
+                .call(d3.axisLeft(yScale))
+                .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "12px"); // opțional: schimbați dimensiunea fontului
+
+        });
+       
+        const width2 = 1000;
+    const height2 = 400;
+    const margin2 = { top: 30, right: 20, bottom: 30, left: 40 };
+
+    // Creați elementul SVG
+    const svg2 = d3.select("#graphics")
+        .append("svg")
+        .attr("width", width2)
+        .attr("height", height2)
+        .attr("x", 0) // Specificați coordonata x pentru a începe de la marginea stângă
+    .attr("y", height + margin.top + margin.bottom); // Specificați coordonata y pentru a plasa sub primul grafic
+
+
+
+    // Încărcați stratul GeoJSON din GeoServer
+    d3.json("http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3Aetnie2&maxFeatures=50&outputFormat=application%2Fjson")
+        .then(function(data) {
+            // Extrageți valorile necesare pentru axa x și axa y
+            const values = data.features.map(feature => ({
+                x: feature.properties.CLASA, // înlocuiți "xAttribute" cu numele atributului pentru axa x
+                y: feature.properties.NUMAR // înlocuiți "yAttribute" cu numele atributului pentru axa y
+            }));
+
+            const colorScale = d3.scaleOrdinal()
+    .domain(values.map(d => d.x)) // Setează domeniul la toate valorile unice de pe axa x
+    .range(d3.schemeCategory10); 
+
+            // Definiți scala pentru axa x (presupunând că sunt date numerice)
+            const xScale = d3.scaleBand()
+                .domain(values.map(d => d.x))
+                .range([margin2.left, width2 - margin2.right])
+                .padding(0.1);
+
+            // Definiți scala pentru axa y
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(values, d => d.y)])
+                .nice()
+                .range([height2 - margin2.bottom, margin2.top]);
+
+                const tooltip = svg2.append("text")
+    .attr("class", "tooltip")
+    .attr("x", 0)
+    .attr("y", 0)
+    .style("opacity", 0)
+    .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "12px"); // opțional: schimbați dimensiunea fontului
+
+
+            // Adăugați barele la grafic
+            svg2.selectAll("rect")
+    .data(values)
+    .join("rect")
+    .attr("x", d => xScale(d.x))
+    .attr("y", d => yScale(d.y))
+    .attr("width", xScale.bandwidth())
+    .attr("height", d => yScale(0) - yScale(d.y))
+    .attr("fill", d => colorScale(d.x))
+    .on("mouseover", (event, d) => {
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+        tooltip.text(d.y)
+            .attr("x", xScale(d.x) + xScale.bandwidth() / 2)
+            .attr("y", yScale(d.y) - 10)
+            .attr("text-anchor", "middle");
+    })
+    .on("mouseout", (event, d) => {
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    });
+    svg2.append("text")
+        .attr("x", (width2 / 2))   // Poziția orizontală a titlului (centrul SVG-ului)
+    .attr("y", (margin2.top / 2))  // Poziția verticală a titlului (la jumătatea marginii de sus)
+    .attr("text-anchor", "middle")  // Alinierea textului la centru orizontal
+    .style("font-size", "18px")   // Dimensiunea fontului pentru titlu
+    .text("Structura etnica 2022") // Textul titlului
+    .style("font-family", "Bahnschrift, sans-serif")
+
+
+
+            // Adăugați axa x
+            svg2.append("g")
+                .attr("transform", `translate(0,${height2 - margin2.bottom})`)
+                .call(d3.axisBottom(xScale))
+                .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "10px"); // opțional: schimbați dimensiunea fontului
+
+            // Adăugați axa y
+            svg2.append("g")
+                .attr("transform", `translate(${margin2.left},0)`)
+                .call(d3.axisLeft(yScale)
+                )
+                .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "12px"); // opțional: schimbați dimensiunea fontului
+
+    
+        });
+       
+        const width3 = 1000;
+    const height3 = 400;
+    const margin3 = { top: 30, right: 20, bottom: 30, left: 40 };
+
+    // Creați elementul SVG
+    const svg3 = d3.select("#graphics")
+        .append("svg")
+        .attr("width", width3)
+        .attr("height", height3)
+        .attr("x", 0) // Specificați coordonata x pentru a începe de la marginea stângă
+    .attr("y", height + margin.top + margin.bottom); // Specificați coordonata y pentru a plasa sub primul grafic
+
+
+
+    // Încărcați stratul GeoJSON din GeoServer
+    d3.json("http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3Apop_grupe_de_varsta&maxFeatures=50&outputFormat=application%2Fjson")
+        .then(function(data) {
+            // Extrageți valorile necesare pentru axa x și axa y
+            const values = data.features.map(feature => ({
+                x: feature.properties.GrupeVarst, // înlocuiți "xAttribute" cu numele atributului pentru axa x
+                y: feature.properties.Valoare // înlocuiți "yAttribute" cu numele atributului pentru axa y
+            }));
+            const colorScale = d3.scaleOrdinal()
+    .range(d3.schemeCategory10); // 
+            // Definiți scala pentru axa x (presupunând că sunt date numerice)
+            const xScale = d3.scaleBand()
+                .domain(values.map(d => d.x))
+                .range([margin3.left, width3 - margin3.right])
+                .padding(0.1);
+
+            // Definiți scala pentru axa y
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(values, d => d.y)])
+                .nice()
+                .range([height3 - margin3.bottom, margin3.top]);
+
+                const tooltip = svg3.append("text")
+    .attr("class", "tooltip")
+    .attr("x", 0)
+    .attr("y", 0)
+    .style("opacity", 0)
+    .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "12px"); // opțional: schimbați dimensiunea fontului
+
+
+            // Adăugați barele la grafic
+            svg3.selectAll("rect")
+    .data(values)
+    .join("rect")
+    .attr("x", d => xScale(d.x))
+    .attr("y", d => yScale(d.y))
+    .attr("width", xScale.bandwidth())
+    .attr("height", d => yScale(0) - yScale(d.y))
+    .attr("fill", (d,i) => colorScale(i))
+    .on("mouseover", (event, d) => {
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+        tooltip.text(d.y)
+            .attr("x", xScale(d.x) + xScale.bandwidth() / 2)
+            .attr("y", yScale(d.y) - 10)
+            .attr("text-anchor", "middle");
+    })
+    .on("mouseout", (event, d) => {
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    });
+    svg3.append("text")
+        .attr("x", (width3 / 2))   // Poziția orizontală a titlului (centrul SVG-ului)
+    .attr("y", (margin3.top / 2))  // Poziția verticală a titlului (la jumătatea marginii de sus)
+    .attr("text-anchor", "middle")  // Alinierea textului la centru orizontal
+    .style("font-size", "18px")   // Dimensiunea fontului pentru titlu
+    .text("Populatia pe grupe de varsta") // Textul titlului
+    .style("font-family", "Bahnschrift, sans-serif")
+
+
+
+            // Adăugați axa x
+            svg3.append("g")
+                .attr("transform", `translate(0,${height3 - margin3.bottom})`)
+                .call(d3.axisBottom(xScale))
+                .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "10px"); // opțional: schimbați dimensiunea fontului
+
+            // Adăugați axa y
+            svg3.append("g")
+                .attr("transform", `translate(${margin3.left},0)`)
+                .call(d3.axisLeft(yScale)
+                )
+                .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "12px"); // opțional: schimbați dimensiunea fontului
+
+    
+        });
+       
+      // Dimensiunile graficului și marginile
+const width4 = 1000;
+const height4 = 400;
+const margin4 = { top: 40, right: 20, bottom: 30, left: 50 };
+
+// Creați elementul SVG
+const svg4 = d3.select("#graphics")
+  .append("svg")
+  .attr("width", width4)
+  .attr("height", height4);
+
+// Încărcați datele GeoJSON din GeoServer
+d3.json("http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3Astabiliri_resedinta2&maxFeatures=50&outputFormat=application%2Fjson")
+  .then(function(data) {
+    // Extrageți datele necesare pentru graficul de linie
+    const lineData = data.features.map(feature => ({
+      x: feature.properties.An,
+      y: feature.properties.stabiliri
+    }));
+
+    const xScale = d3.scaleBand()
+  .domain(lineData.map(d => d.x)) // Utilizați toate valorile x din date
+  .range([margin4.left, width4 - margin4.right])
+  .padding(0.1);
+
+    // Definiți scala pentru axa y
+    const yScale = d3.scaleLinear()
+      .domain(d3.extent(lineData, d => d.y))
+      .range([height4 - margin4.bottom, margin4.top]);
+
+    // Creați o linie generator
+    const line = d3.line()
+      .x(d => xScale(d.x) + xScale.bandwidth() / 2)
+      .y(d => yScale(d.y));
+
+      const tooltip = svg4.append("text")
+  .attr("class", "tooltip")
+  .style("opacity", 0)
+  .style("font-family", "Bahnschrift, sans-serif")
+  .style("font-size", "12px");
+
+     // Adăugați evenimentul "mousemove" pe elementul SVG
+svg4.on("mousemove", function(event) {
+  // Determinați poziția cursorului în raport cu elementul SVG
+  const mouseX = d3.pointer(event)[0] - margin4.left;
+
+  // Calculați indicele cel mai apropiat pe baza poziției cursorului
+  const index = Math.round((mouseX / (width4 - margin4.left - margin4.right)) * (lineData.length - 1));
+
+  // Asigurați-vă că indicele este în intervalul corect
+  const boundedIndex = Math.max(0, Math.min(index, lineData.length - 1));
+
+  // Obțineți valorile corespunzătoare axei x și y la indicele determinat
+  const xValue = lineData[boundedIndex].x;
+  const yValue = lineData[boundedIndex].y;
+
+  // Afișați valorile axelor x și y la poziția cursorului
+  tooltip.text(`An: ${xValue}, Stabiliri: ${yValue}`)
+    .attr("x", mouseX + margin4.left)
+    .attr("y", yScale(yValue) + margin4.top)
+    .attr("text-anchor", "middle")
+    .style("opacity", 0.9);
+});
+
+// Adăugați evenimentul "mouseout" pentru a ascunde afișajul valorilor la părăsirea graficului
+svg4.on("mouseout", function() {
+  tooltip.style("opacity", 0);
+});
+
+
+    // Adăugați linia la grafic
+    svg4.append("path")
+      .datum(lineData)
+      .attr("fill", "none")
+      .attr("stroke", "green")
+      .attr("stroke-width", 2)
+      .attr("d", line);
+
+    // Adăugați axa x
+    svg4.append("g")
+      .attr("transform", `translate(0,${height4 - margin4.bottom})`)
+      .call(d3.axisBottom(xScale));
+
+    // Adăugați axa y
+    svg4.append("g")
+      .attr("transform", `translate(${margin4.left},0)`)
+      .call(d3.axisLeft(yScale));
+
+      svg4.append("text")
+  .attr("x", (width4 + margin4.left + margin4.right) / 2) // Poziția orizontală a titlului (centrul SVG-ului)
+  .attr("y", margin4.top / 2)  // Poziția verticală a titlului (la jumătatea marginii de sus)
+  .attr("text-anchor", "middle")  // Alinierea textului la centru orizontal
+  .style("font-size", "18px")   // Dimensiunea fontului pentru titlu
+  .text("Stabiliri de resedinta") // Textul titlului
+  .style("font-family", "Bahnschrift, sans-serif"); // Stilul fontului pentru titlu
+
+  })
+  
+  .catch(function(error) {
+    console.log("Eroare la încărcarea datelor:", error);
+  });
+// Adăugați un titlu la grafic
+
+ // Dimensiunile graficului și marginile
+const width5 = 1000;
+const height5 = 400;
+const margin5 = { top: 40, right: 20, bottom: 30, left: 50 };
+
+// Creați elementul SVG
+const svg5 = d3.select("#graphics")
+  .append("svg")
+  .attr("width", width5)
+  .attr("height", height5);
+
+// Încărcați datele GeoJSON din GeoServer
+d3.json("http://localhost:8080/geoserver/gis/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis%3Acasatorii2&maxFeatures=50&outputFormat=application%2Fjson")
+  .then(function(data) {
+    // Extrageți datele necesare pentru graficul de linie
+    const lineData = data.features.map(feature => ({
+      x: feature.properties.An,
+      y: feature.properties.Casatori
+    }));
+
+    const xScale = d3.scaleBand()
+      .domain(lineData.map(d => d.x))
+      .range([margin5.left, width5 - margin5.right])
+      .padding(0.1);
+
+    // Definiți scala pentru axa y
+    const yScale = d3.scaleLinear()
+      .domain(d3.extent(lineData, d => d.y))
+      .range([height5 - margin5.bottom, margin5.top]);
+
+    // Creați o linie generator
+    const line = d3.line()
+      .x(d => xScale(d.x) + xScale.bandwidth() / 2)
+      .y(d => yScale(d.y));
+
+    // Adăugați linia la grafic
+    svg5.append("path")
+      .datum(lineData)
+      .attr("fill", "none")
+      .attr("stroke", "purple")
+      .attr("stroke-width", 2)
+      .attr("d", line);
+
+    // Adăugați axa x
+    svg5.append("g")
+      .attr("transform", `translate(0,${height5 - margin5.bottom})`)
+      .call(d3.axisBottom(xScale));
+
+    // Adăugați axa y
+    svg5.append("g")
+      .attr("transform", `translate(${margin5.left},0)`)
+      .call(d3.axisLeft(yScale));
+
+    // Adăugați titlul graficului
+    svg5.append("text")
+      .attr("x", width5 / 2)
+      .attr("y", margin5.top / 2)
+      .attr("text-anchor", "middle")
+      .style("font-size", "18px")
+      .text("Evolutia numarului de casatorii")
+      .style("font-family", "Bahnschrift, sans-serif");
+
+    // Adăugați elementul pentru afișarea valorilor la cursor
+    const tooltip = svg5.append("text")
+      .attr("class", "tooltip")
+      .style("opacity", 0)
+      .style("font-family", "Bahnschrift, sans-serif")
+      .style("font-size", "12px");
+
+    // Adăugați evenimentul "mousemove" pe elementul SVG
+    svg5.on("mousemove", function(event) {
+      // Determinați poziția cursorului în raport cu elementul SVG
+      const mouseX = d3.pointer(event)[0] - margin5.left;
+
+      // Calculați indicele cel mai apropiat pe baza poziției cursorului
+      const index = Math.round((mouseX / (width5 - margin5.left - margin5.right)) * (lineData.length - 1));
+
+      // Asigurați-vă că indicele este în intervalul corect
+      const boundedIndex = Math.max(0, Math.min(index, lineData.length - 1));
+
+      // Obțineți valorile corespunzătoare axei x și y la indicele determinat
+      const xValue = lineData[boundedIndex].x;
+      const yValue = lineData[boundedIndex].y;
+
+      // Afișați valorile axelor x și y la poziția cursorului
+      tooltip.text(`An: ${xValue}, Casatorii: ${yValue}`)
+        .attr("x", mouseX + margin5.left)
+        .attr("y", yScale(yValue) + margin5.top)
+        .attr("text-anchor", "middle")
+        .style("opacity", 0.9);
+    });
+
+    // Adăugați evenimentul "mouseout" pentru a ascunde afișajul valorilor la părăsirea graficului
+    svg5.on("mouseout", function() {
+      tooltip.style("opacity", 0);
+    });
+
+  })
+  .catch(function(error) {
+    console.log("Eroare la încărcarea datelor:", error);
+  });
+
+  const data = [
+  { Religie: "Ortodoxa", numar: 5807 },
+  { Religie: "Romano-Catolica", numar: 35 },
+  { Religie: "Musulmana", numar: 13 },
+  { Religie: "Alta religie", numar: 4 },
+  { Religie: "Fara religie", numar: 14 },
+  { Religie: "Ateu", numar: 18 },
+  { Religie: "Informatie indisponibila", numar: 696 }
+];
+
+const cellWidth = 150; // Lățimea celulelor
+const cellHeight = 30; // Înălțimea celulelor
+const tableMargin = { top: 20, left: 20 }; // Marginile tabelului
+
+// Calculați lățimea totală și înălțimea totală a tabelului
+const maxReligieLength = d3.max(data, d => d.Religie.length);
+const maxNumarLength = d3.max(data, d => String(d.numar).length);
+const totalWidth = (cellWidth + tableMargin.left) * 3 + tableMargin.left * 2 + maxReligieLength * 10; // Ajustăm pentru lungimea titlului
+const totalHeight = (cellHeight + tableMargin.top) * (data.length + 1);
+
+// Creați elementul SVG pentru tabel
+const svg6 = d3.select("#graphics")
+  .append("svg")
+  .attr("width", totalWidth)
+  .attr("height", totalHeight);
+
+// Adăugați antetele tabelului
+const headers = ["Religie", "Numar"];
+svg6.selectAll(".header")
+  .data(headers)
+  .enter()
+  .append("text")
+  .attr("class", "header")
+  .attr("x", (d, i) => tableMargin.left + i * (cellWidth + tableMargin.left) + cellWidth / 2) // Alinează la mijloc
+  .attr("y", tableMargin.top)
+  .text(d => d)
+  .attr("font-family", "Bahnschrift")
+  .attr("text-anchor", "middle")
+  .attr("dominant-baseline", "middle");
+
+// Adăugați rânduri pentru fiecare intrare din date
+const rows = svg6.selectAll("g.row")
+  .data(data)
+  .enter()
+  .append("g")
+  .attr("class", "row")
+  .attr("transform", (d, i) => `translate(0, ${tableMargin.top + (i + 1) * (cellHeight + tableMargin.top)})`);
+
+// Adăugați celule pentru fiecare coloană din fiecare rând
+rows.selectAll(".cell")
+  .data(d => [d.Religie, d.numar])
+  .enter()
+  .append("rect")
+  .attr("class", "cell")
+  .attr("x", (d, i) => tableMargin.left + i * (cellWidth + tableMargin.left))
+  .attr("y", 0)
+  .attr("width", cellWidth)
+  .attr("height", cellHeight)
+  .attr("fill", "none")
+  .attr("stroke", "black")
+  .attr("stroke-width", 1);
+
+// Adăugați textul în fiecare celulă, cu ajustarea dimensiunilor
+rows.selectAll("text")
+  .data(d => [d.Religie, d.numar])
+  .enter()
+  .append("text")
+  .attr("x", (d, i) => tableMargin.left + i * (cellWidth + tableMargin.left) + cellWidth / 2)
+  .attr("y", cellHeight / 2)
+  .attr("text-anchor", "middle")
+  .attr("dominant-baseline", "middle")
+  .text(d => d)
+  .attr("font-family", "Bahnschrift")
+  .attr("font-size", Math.min(cellHeight, cellWidth / 6) * 0.5); // Ajustați dimensiunea fontului
+
+
+
+var Button = document.getElementById('Button');
+    Button.addEventListener('click', function() {
+      var mapdiv= document.getElementById('map');
+      var graphicsDiv = document.getElementById('graphics');
+
+      if (mapdiv.style.display !== 'none') {
+        // Leaflet map is currently visible, switch to Cesium
+        mapdiv.style.display = 'none';
+        graphicsDiv.style.display = 'block';
+        Button.textContent = 'Atlas'
+      } else {
+        // Cesium map is currently visible, switch to Leaflet
+        graphicsDiv.style.display = 'none';
+        mapdiv.style.display = 'block';
+        Button.textContent = 'Dashboard demografic'
+      }
+    });
+  
+  </script>
+</body>
+</html>
