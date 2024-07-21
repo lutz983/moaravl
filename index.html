@@ -914,27 +914,7 @@ d3.json("divorturi.geojson")
   });
 
  
-// Selectați elementul ceasului
-const clock = d3.select("#clock");
 
-// Funcție pentru actualizarea timpului în timp real
-function updateClock() {
-    const now = new Date(); // Obțineți data și ora curentă
-
-    // Construiți șirul de timp
-    const timeString = now.toLocaleTimeString();
-    const dateString = now.toLocaleDateString();
-    const dateTimeString = `${timeString} - ${dateString}`;
-
-    // Actualizați conținutul ceasului
-    clock.text(dateTimeString);
-}
-
-// Actualizați ceasul la fiecare secundă
-setInterval(updateClock, 1000);
-
-// Inițializați ceasul la încărcarea paginii
-updateClock();
 
 // Încarcă datele GeoJSON din GeoServer
 d3.json("vecini_moara_vlasiei.geojson")
