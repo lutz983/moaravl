@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard demografic - Moara Vlăsiei</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+
+   
+
+    <style>
+   
+   
+   #graphics .card {
+  margin-bottom: 20px;
+  border-radius: 10px; /* Bordură rotunjită */
+  overflow: auto; /* Adaugă bara de derulare atunci când conținutul depășește înălțimea maximă */
+  border: 4px solid transparent; /* Bordură inițială transparentă */
+  border-image: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet); /* Gradientul de culoare pentru bordură */
+  border-image-slice: 1; /* Tăierea gradientului în bucăți egale */
+  padding: 10px; /* Spațiere între conținut și bordură */
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  background: #f9f9f9; /* Fundal ușor gri */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Umbră inițială subtilă */
+}
+
+#graphics .card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Adaugă o umbră mai pronunțată la hover */
+  transform: scale(1.05); /* Mărește ușor cardul la hover */
+  background: #ffffff; /* Schimbă fundalul la hover */
+}
+
+#graphics .card .card-body {
+  padding: 15px; /* Spațiere internă a cardului */
+  font-family: 'Arial', sans-serif; /* Schimbă fontul */
+  color: #333; /* Culoare text */
+}
+
+#graphics .card .card-title {
+  font-size: 18px; /* Mărimea fontului titlului */
+  font-weight: bold; /* Titlu îngroșat */
+  margin-bottom: 10px; /* Spațiere sub titlu */
+  text-align: center; /* Titlul centrat */
+  color: #444; /* Culoare titlu */
+}
+
+#graphics .card:hover .card-title {
+  color: #007bff; /* Schimbă culoarea titlului la hover */
+}
+
+/* Stiluri pentru butoane, dacă există */
+#graphics .card .btn {
+  background: linear-gradient(to right, #ff7e5f, #feb47b); /* Gradient pentru butoane */
+  color: white; /* Culoare text butoane */
+  border: none; /* Fără bordură */
+  padding: 10px 20px; /* Spațiere internă butoane */
+  border-radius: 5px; /* Bordură rotunjită pentru butoane */
+  transition: background 0.3s ease; /* Tranziție pentru fundalul butoanelor */
+}
+
+#graphics .card .btn:hover {
+  background: linear-gradient(to right, #feb47b, #ff7e5f); /* Gradient inversat la hover */
+  cursor: pointer; /* Schimbă cursorul la pointer */
+}
+
+/* Stiluri pentru text */
+#graphics .card p {
+  line-height: 1.5; /* Înălțimea liniei */
+  font-size: 14px; /* Mărimea fontului */
+  margin: 0; /* Fără margine */
+  padding: 10px 0; /* Spațiere internă */
+  color: #666; /* Culoare text */
+}
+
+.tooltip {
+      position: absolute;
+      text-align: center;
+      width: 100px;
+      height: 50px;
+      padding: 5px;
+      font: 12px sans-serif;
+      background: lightsteelblue;
+      border: 0px;
+      border-radius: 8px;
+      pointer-events: none;
+      font-family: Bahnschrift;
+    }
+
+    .axis-label {
+      font-size: 14px;
+      font-weight: bold;
+      text-anchor: middle;
+    }
+
+    .grid line {
+      stroke: lightgray;
+    }
+    </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-center my-4">Dashboard demografic pentru Moara Vlasiei</h1>
+      </div>
+    </div>
+  <div id="graphics">
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Grafic 1 -->
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Natalitatea 1990-2022</h5>
+              <div id="chart1"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Grafic 2 -->
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Structura etnica 2022</h5>
+              <div id="chart2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <!-- Grafic 3 -->
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Populatia pe grupe de varsta</h5>
+              <div id="chart3"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Grafic 4 -->
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Stabiliri de resedinta</h5>
+              <div id="chart4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <!-- Grafic 5 -->
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Evolutia numarului de casatorii</h5>
+              <div id="chart5"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Tabel -->
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Religie</h5>
+              <div id="table"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <!-- Grafic 6 -->
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Divorturi</h5>
+              <div id="chart6"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Moara Vlasiei</h5>
+              <div id="chart7"></div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script>
+const width = 1200;
+    const height = 400;
+    const margin = { top: 50, right: 20, bottom: 50, left: 60 };
+
+    // Creați elementul SVG
+    const svg = d3.select("#chart1")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // Încărcați stratul GeoJSON din GeoServer
+    d3.json("natalitate.geojson")
+      .then(function(data) {
+        const values = data.features.map(feature => ({
+          x: feature.properties.An,
+          y: feature.properties.Natalitate
+        }));
+
+        const xScale = d3.scaleBand()
+          .domain(values.map(d => d.x))
+          .range([margin.left, width - margin.right])
+          .padding(0.1);
+
+        const yScale = d3.scaleLinear()
+          .domain([0, d3.max(values, d => d.y)])
+          .nice()
+          .range([height - margin.bottom, margin.top]);
+
+        const colorScale = d3.scaleSequential(d3.interpolateBlues)
+          .domain([0, d3.max(values, d => d.y)]);
+
+        const tooltip = d3.select("body").append("div")
+          .attr("class", "tooltip")
+          .style("opacity", 0);
+
+        svg.selectAll("rect")
+          .data(values)
+          .join("rect")
+          .attr("x", d => xScale(d.x))
+          .attr("y", yScale(0))
+          .attr("width", xScale.bandwidth())
+          .attr("height", 0)
+          .attr("fill", d => colorScale(d.y))
+          .on("mouseover", (event, d) => {
+            tooltip.transition()
+              .duration(200)
+              .style("opacity", .9);
+            tooltip.html(`An: ${d.x}<br>Natalitate: ${d.y}`)
+              .style("left", (event.pageX + 5) + "px")
+              .style("top", (event.pageY - 28) + "px");
+          })
+          .on("mouseout", () => {
+            tooltip.transition()
+              .duration(500)
+              .style("opacity", 0);
+          })
+          .transition()
+          .duration(800)
+          .attr("y", d => yScale(d.y))
+          .attr("height", d => yScale(0) - yScale(d.y));
+
+        svg.append("text")
+          .attr("x", (width / 2))
+          .attr("y", (margin.top / 2))
+          .attr("text-anchor", "middle")
+          .style("font-size", "20px")
+          .style("font-family", "Bahnschrift, sans-serif")
+          .text("Natalitatea 1990-2022");
+
+        var customXAxis = function(g) {
+          g.call(d3.axisBottom(xScale)
+            .tickSizeOuter(0)
+            .tickFormat(d3.format("d")))
+            .selectAll("text")
+            .attr("transform", "rotate(-45)")
+            .style("text-anchor", "end");
+        };
+
+        svg.append("g")
+          .attr("transform", `translate(0,${height - margin.bottom})`)
+          .call(customXAxis)
+          .style("font-family", "Bahnschrift, sans-serif")
+          .style("font-size", "10px");
+
+        svg.append("g")
+          .attr("transform", `translate(${margin.left},0)`)
+          .call(d3.axisLeft(yScale).ticks(10).tickSize(-width + margin.left + margin.right)) // Add grid lines
+          .style("font-family", "Bahnschrift, sans-serif")
+          .style("font-size", "12px")
+          .selectAll(".tick line")
+          .style("stroke", "lightgray"); // Style grid lines
+      });
+    const width2 = 1200;
+const height2 = 400;
+const margin2 = { top: 50, right: 20, bottom: 50, left: 60 };
+
+// Creați elementul SVG
+const svg2 = d3.select("#chart2")
+    .append("svg")
+    .attr("width", width2)
+    .attr("height", height2);
+
+// Încărcați stratul GeoJSON din GeoServer
+d3.json("etnie2.geojson")
+.then(function(data) {
+        const values = data.features.map(feature => ({
+            x: feature.properties.CLASA, 
+            y: feature.properties.NUMAR 
+        }));
+
+        const xScale = d3.scaleBand()
+            .domain(values.map(d => d.x))
+            .range([margin2.left, width2 - margin2.right])
+            .padding(0.1);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(values, d => d.y)])
+            .nice()
+            .range([height2 - margin2.bottom, margin2.top]);
+
+        const colorScale = d3.scaleSequential(d3.interpolateViridis)
+            .domain([0, d3.max(values, d => d.y)]);
+
+        const tooltip2 = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        // Adăugați barele la grafic
+        svg2.selectAll("rect")
+            .data(values)
+            .join("rect")
+            .attr("x", d => xScale(d.x))
+            .attr("y", yScale(0))
+            .attr("width", xScale.bandwidth())
+            .attr("height", 0)
+            .attr("fill", d => colorScale(d.y))
+            .on("mouseover", (event, d) => {
+                tooltip2.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip2.html(`Etnie: ${d.x}<br>Numar: ${d.y}`)
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", (event, d) => {
+                tooltip2.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            })
+            .transition()
+            .duration(800)
+            .attr("y", d => yScale(d.y))
+            .attr("height", d => yScale(0) - yScale(d.y));
+
+        // Adăugare text pentru fiecare bară
+        svg2.selectAll("text.value")
+            .data(values)
+            .join("text")
+            .attr("class", "value")
+            .text(d => d.y)
+            .attr("x", d => xScale(d.x) + xScale.bandwidth() / 2)
+            .attr("y", d => yScale(d.y) - 10)
+            .attr("text-anchor", "middle")
+            .style("font-family", "Bahnschrift, sans-serif")
+            .style("font-size", "12px")
+            .style("fill", "black");
+
+        svg2.append("text")
+            .attr("x", (width2 / 2))
+            .attr("y", (margin2.top / 2))
+            .attr("text-anchor", "middle")
+            .style("font-size", "18px")
+            .text("Structura etnică 2022")
+            .style("font-family", "Bahnschrift, sans-serif");
+
+        var customXAxis = function(g) {
+            g.call(d3.axisBottom(xScale)
+                .tickSizeOuter(0));
+        };
+
+        svg2.append("g")
+            .attr("transform", `translate(0,${height2 - margin2.bottom})`)
+            .call(customXAxis)
+            .style("font-family", "Bahnschrift, sans-serif")
+            .style("font-size", "10px");
+
+        svg2.append("g")
+            .attr("transform", `translate(${margin2.left},0)`)
+            .call(d3.axisLeft(yScale).ticks(10).tickSize(-width2 + margin2.left + margin2.right))
+            .style("font-family", "Bahnschrift, sans-serif")
+            .style("font-size", "12px")
+            .selectAll(".tick line")
+            .style("stroke", "lightgray");
+    });
+
+        
+        const width3 = 1000;
+    const height3 = 400;
+    const margin3 = { top: 30, right: 20, bottom: 30, left: 40 };
+
+    // Creați elementul SVG
+    const svg3 = d3.select("#chart3")
+        .append("svg")
+        .attr("width", width3)
+        .attr("height", height3)
+        .attr("x", 0) // Specificați coordonata x pentru a începe de la marginea stângă
+    .attr("y", height + margin.top + margin.bottom); // Specificați coordonata y pentru a plasa sub primul grafic
+
+
+
+    // Încărcați stratul GeoJSON din GeoServer
+    d3.json("populatie_varsta.geojson")
+        .then(function(data) {
+            // Extrageți valorile necesare pentru axa x și axa y
+            const values = data.features.map(feature => ({
+                x: feature.properties.GrupeVarst, // înlocuiți "xAttribute" cu numele atributului pentru axa x
+                y: feature.properties.Valoare // înlocuiți "yAttribute" cu numele atributului pentru axa y
+            }));
+            const colorScale = d3.scaleOrdinal()
+    .range(d3.schemeCategory10); // 
+            // Definiți scala pentru axa x (presupunând că sunt date numerice)
+            const xScale = d3.scaleBand()
+                .domain(values.map(d => d.x))
+                .range([margin3.left, width3 - margin3.right])
+                .padding(0.1);
+
+            // Definiți scala pentru axa y
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(values, d => d.y)])
+                .nice()
+                .range([height3 - margin3.bottom, margin3.top]);
+
+                const tooltip = svg3.append("text")
+    .attr("class", "tooltip")
+    .attr("x", 0)
+    .attr("y", 0)
+    .style("opacity", 0)
+    .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "12px"); // opțional: schimbați dimensiunea fontului
+
+
+            // Adăugați barele la grafic
+            svg3.selectAll("rect")
+    .data(values)
+    .join("rect")
+    .attr("x", d => xScale(d.x))
+    .attr("y", d => yScale(d.y))
+    .attr("width", xScale.bandwidth())
+    .attr("height", d => yScale(0) - yScale(d.y))
+    .attr("fill", (d,i) => colorScale(i))
+    .on("mouseover", (event, d) => {
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+        tooltip.text(d.y)
+            .attr("x", xScale(d.x) + xScale.bandwidth() / 2)
+            .attr("y", yScale(d.y) - 10)
+            .attr("text-anchor", "middle");
+    })
+    .on("mouseout", (event, d) => {
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    });
+    svg3.append("text")
+        .attr("x", (width3 / 2))   // Poziția orizontală a titlului (centrul SVG-ului)
+    .attr("y", (margin3.top / 2))  // Poziția verticală a titlului (la jumătatea marginii de sus)
+    .attr("text-anchor", "middle")  // Alinierea textului la centru orizontal
+    .style("font-size", "18px")   // Dimensiunea fontului pentru titlu
+    .text("Populatia pe grupe de varsta") // Textul titlului
+    .style("font-family", "Bahnschrift, sans-serif")
+
+
+
+            // Adăugați axa x
+            svg3.append("g")
+                .attr("transform", `translate(0,${height3 - margin3.bottom})`)
+                .call(d3.axisBottom(xScale))
+                .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "10px"); // opțional: schimbați dimensiunea fontului
+
+            // Adăugați axa y
+            svg3.append("g")
+                .attr("transform", `translate(${margin3.left},0)`)
+                .call(d3.axisLeft(yScale)
+                )
+                .style("font-family", "Bahnschrift, sans-serif")
+    .style("font-size", "12px"); // opțional: schimbați dimensiunea fontului
+
+    
+        });
+       
+        const width4 = 1000;
+const height4 = 400;
+const margin4 = { top: 40, right: 20, bottom: 30, left: 50 };
+
+// Creați elementul SVG
+const svg4 = d3.select("#chart4")
+  .append("svg")
+  .attr("width", width4)
+  .attr("height", height4);
+
+// Definiți un gradient pentru linie
+const gradient = svg4.append("defs")
+  .append("linearGradient")
+  .attr("id", "line-gradient")
+  .attr("gradientUnits", "userSpaceOnUse")
+  .attr("x1", 0)
+  .attr("offset", "0%")
+  .attr("stop-color", "green");
+
+gradient.append("stop")
+  .attr("offset", "100%")
+  .attr("stop-color", "blue");
+
+// Încărcați datele GeoJSON din GeoServer
+d3.json("stabiliri_resedinta.geojson")
+  .then(function(data) {
+    const lineData = data.features.map(feature => ({
+      x: feature.properties.An,
+      y: feature.properties.stabiliri
+    }));
+
+    const xScale = d3.scaleBand()
+      .domain(lineData.map(d => d.x))
+      .range([margin4.left, width4 - margin4.right])
+      .padding(0.1);
+
+    const yScale = d3.scaleLinear()
+      .domain(d3.extent(lineData, d => d.y))
+      .nice()
+      .range([height4 - margin4.bottom, margin4.top]);
+
+    const line = d3.line()
+      .x(d => xScale(d.x) + xScale.bandwidth() / 2)
+      .y(d => yScale(d.y));
+
+    // Adăugați grilajele
+    svg4.append("g")
+      .attr("class", "grid")
+      .attr("transform", `translate(0,${height4 - margin4.bottom})`)
+      .call(d3.axisBottom(xScale).tickSize(-height4 + margin4.top + margin4.bottom).tickFormat(''))
+      .selectAll("line")
+      .style("stroke", "lightgray")
+      .style("stroke-dasharray", "2,2");
+
+    svg4.append("g")
+      .attr("class", "grid")
+      .attr("transform", `translate(${margin4.left},0)`)
+      .call(d3.axisLeft(yScale).tickSize(-width4 + margin4.left + margin4.right).tickFormat(''))
+      .selectAll("line")
+      .style("stroke", "lightgray")
+      .style("stroke-dasharray", "2,2");
+
+    // Adăugați linia la grafic folosind "path" SVG
+    svg4.append("path")
+      .datum(lineData)
+      .attr("fill", "none")
+      .attr("stroke", "url(#line-gradient)")
+      .attr("stroke-width", 3)
+      .attr("stroke-dasharray", function() {
+        const length = this.getTotalLength();
+        return `${length} ${length}`;
+      })
+      .attr("stroke-dashoffset", function() {
+        return this.getTotalLength();
+      })
+      .transition()
+      .duration(2000)
+      .attr("stroke-dashoffset", 0);
+
+    // Adăugați puncte pe linie cu animație
+    svg4.selectAll(".dot")
+      .data(lineData)
+      .enter().append("circle")
+      .attr("class", "dot")
+      .attr("cx", d => xScale(d.x) + xScale.bandwidth() / 2)
+      .attr("cy", d => yScale(d.y))
+      .attr("r", 0)
+      .attr("fill", "green")
+      .attr("stroke", "white")
+      .attr("stroke-width", 1.5)
+      .transition()
+      .duration(1000)
+      .attr("r", 5);
+
+    // Adăugați axa x
+    svg4.append("g")
+      .attr("transform", `translate(0,${height4 - margin4.bottom})`)
+      .call(d3.axisBottom(xScale))
+      .selectAll("text")
+      .style("font-family", "Bahnschrift, sans-serif")
+      .style("font-size", "12px");
+
+    // Adăugați axa y
+    svg4.append("g")
+      .attr("transform", `translate(${margin4.left},0)`)
+      .call(d3.axisLeft(yScale))
+      .selectAll("text")
+      .style("font-family", "Bahnschrift, sans-serif")
+      .style("font-size", "12px");
+
+    // Adăugați titlul graficului
+    svg4.append("text")
+      .attr("x", (width4 + margin4.left + margin4.right) / 2)
+      .attr("y", margin4.top / 2)
+      .attr("text-anchor", "middle")
+      .style("font-size", "18px")
+      .text("Stabiliri de resedinta")
+      .style("font-family", "Bahnschrift, sans-serif");
+
+    // Adăugați elementul pentru afișarea valorilor la cursor
+    const tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("position", "absolute")
+      .style("background-color", "white")
+      .style("border", "1px solid #ccc")
+      .style("padding", "10px")
+      .style("border-radius", "5px")
+      .style("pointer-events", "none")
+      .style("opacity", 0)
+      .style("font-family", "Bahnschrift, sans-serif")
+      .style("font-size", "12px")
+      .style("box-shadow", "0px 0px 10px rgba(0, 0, 0, 0.5)");
+
+    svg4.on("mousemove", function(event) {
+      const [mouseX] = d3.pointer(event);
+      const mouseY = d3.pointer(event)[1];
+
+      const index = Math.round((mouseX - margin4.left) / (width4 - margin4.left - margin4.right) * (lineData.length - 1));
+      const boundedIndex = Math.max(0, Math.min(index, lineData.length - 1));
+
+      const xValue = lineData[boundedIndex].x;
+      const yValue = lineData[boundedIndex].y;
+
+      tooltip.html(`An: ${xValue}<br>Stabiliri: ${yValue}`)
+        .style("left", (event.pageX + 15) + "px")
+        .style("top", (event.pageY - 28) + "px")
+        .transition()
+        .duration(200)
+        .style("opacity", .9);
+    });
+
+    svg4.on("mouseout", function() {
+      tooltip.transition()
+        .duration(500)
+        .style("opacity", 0);
+    });
+  })
+  .catch(function(error) {
+    console.log("Eroare la încărcarea datelor:", error);
+  });
+
+ // Dimensiunile graficului și marginile
+const width5 = 1000;
+const height5 = 400;
+const margin5 = { top: 40, right: 20, bottom: 30, left: 50 };
+
+// Creați elementul SVG
+const svg5 = d3.select("#chart5")
+  .append("svg")
+  .attr("width", width5)
+  .attr("height", height5);
+
+// Încărcați datele GeoJSON din GeoServer
+d3.json("casatorii.geojson")
+  .then(function(data) {
+    // Extrageți datele necesare pentru graficul de linie
+    const lineData = data.features.map(feature => ({
+      x: feature.properties.An,
+      y: feature.properties.Casatori
+    }));
+
+    const xScale = d3.scaleBand()
+      .domain(lineData.map(d => d.x))
+      .range([margin5.left, width5 - margin5.right])
+      .padding(0.1);
+
+    // Definiți scala pentru axa y
+    const yScale = d3.scaleLinear()
+      .domain(d3.extent(lineData, d => d.y))
+      .nice()
+      .range([height5 - margin5.bottom, margin5.top]);
+
+    // Creați o linie generator cu puncte
+    const line = d3.line()
+      .x(d => xScale(d.x) + xScale.bandwidth() / 2)
+      .y(d => yScale(d.y))
+      .defined(d => !isNaN(d.y)); // Asigurați-vă că punctele sunt definite și nu sunt NaN
+
+    // Adăugați linia la grafic folosind "path" SVG
+    svg5.append("path")
+      .datum(lineData)
+      .attr("fill", "none")
+      .attr("stroke", "purple")
+      .attr("stroke-width", 2)
+      .attr("d", line)
+      .attr("stroke-dasharray", function() {
+        const length = this.getTotalLength();
+        return `${length} ${length}`;
+      })
+      .attr("stroke-dashoffset", function() {
+        return this.getTotalLength();
+      })
+      .transition()
+      .duration(2000)
+      .attr("stroke-dashoffset", 0);
+
+    // Adăugați puncte pe linie
+    svg5.selectAll(".dot")
+      .data(lineData)
+      .enter().append("circle")
+      .attr("class", "dot")
+      .attr("cx", d => xScale(d.x) + xScale.bandwidth() / 2)
+      .attr("cy", d => yScale(d.y))
+      .attr("r", 5)
+      .attr("fill", "purple")
+      .attr("stroke", "white")
+      .attr("stroke-width", 1.5);
+
+    // Adăugați axa x
+    svg5.append("g")
+      .attr("transform", `translate(0,${height5 - margin5.bottom})`)
+      .call(d3.axisBottom(xScale))
+      .selectAll("text")
+      .style("font-family", "Bahnschrift, sans-serif")
+      .style("font-size", "12px");
+
+    // Adăugați axa y
+    svg5.append("g")
+      .attr("transform", `translate(${margin5.left},0)`)
+      .call(d3.axisLeft(yScale))
+      .selectAll("text")
+      .style("font-family", "Bahnschrift, sans-serif")
+      .style("font-size", "12px");
+
+    // Adăugați titlul graficului
+    svg5.append("text")
+      .attr("x", width5 / 2)
+      .attr("y", margin5.top / 2)
+      .attr("text-anchor", "middle")
+      .style("font-size", "18px")
+      .text("Evolutia numarului de casatorii")
+      .style("font-family", "Bahnschrift, sans-serif");
+
+    // Adăugați elementul pentru afișarea valorilor la cursor
+    const tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("position", "absolute")
+      .style("background-color", "white")
+      .style("border", "1px solid #ccc")
+      .style("padding", "10px")
+      .style("border-radius", "5px")
+      .style("pointer-events", "none")
+      .style("opacity", 0)
+      .style("font-family", "Bahnschrift, sans-serif")
+      .style("font-size", "12px");
+
+    // Adăugați evenimentul "mousemove" pe elementul SVG
+    svg5.on("mousemove", function(event) {
+      // Determinați poziția cursorului în raport cu elementul SVG
+      const [mouseX] = d3.pointer(event);
+      const mouseY = d3.pointer(event)[1];
+
+      // Calculați indicele cel mai apropiat pe baza poziției cursorului
+      const index = Math.round((mouseX - margin5.left) / (width5 - margin5.left - margin5.right) * (lineData.length - 1));
+
+      // Asigurați-vă că indicele este în intervalul corect
+      const boundedIndex = Math.max(0, Math.min(index, lineData.length - 1));
+
+      // Obțineți valorile corespunzătoare axei x și y la indicele determinat
+      const xValue = lineData[boundedIndex].x;
+      const yValue = lineData[boundedIndex].y;
+
+      // Afișați valorile axelor x și y la poziția cursorului
+      tooltip.html(`An: ${xValue}<br>Casatorii: ${yValue}`)
+        .style("left", (event.pageX + 15) + "px")
+        .style("top", (event.pageY - 28) + "px")
+        .transition()
+        .duration(200)
+        .style("opacity", .9);
+    });
+
+    // Adăugați evenimentul "mouseout" pentru a ascunde afișajul valorilor la părăsirea graficului
+    svg5.on("mouseout", function() {
+      tooltip.transition()
+        .duration(500)
+        .style("opacity", 0);
+    });
+
+  })
+  .catch(function(error) {
+    console.log("Eroare la încărcarea datelor:", error);
+  });
+
+  const data = [
+  { Religie: "Ortodoxa", numar: 5807 },
+  { Religie: "Romano-Catolica", numar: 35 },
+  { Religie: "Musulmana", numar: 13 },
+  { Religie: "Alta religie", numar: 4 },
+  { Religie: "Fara religie", numar: 14 },
+  { Religie: "Ateu", numar: 18 },
+  { Religie: "Informatie indisponibila", numar: 696 }
+];
+
+const cellWidth = 150; // Lățimea celulelor
+const cellHeight = 30; // Înălțimea celulelor
+const tableMargin = { top: 20, left: 20 }; // Marginile tabelului
+
+
+// Calculați totalul pentru a determina procentajul
+const totalNumar = d3.sum(data, d => d.numar);
+
+// Adăugați procentajul la fiecare obiect din date
+data.forEach(d => {
+  d.procent = ((d.numar / totalNumar) * 100).toFixed(2) + "%";
+});
+// Calculați lățimea totală și înălțimea totală a tabelului
+const maxReligieLength = d3.max(data, d => d.Religie.length);
+const maxNumarLength = d3.max(data, d => String(d.numar).length);
+const totalWidth = (cellWidth + tableMargin.left) * 3 + tableMargin.left * 2 + maxReligieLength * 10; // Ajustăm pentru lungimea titlului
+const totalHeight = (cellHeight + tableMargin.top) * (data.length + 1);
+
+// Creați elementul SVG pentru tabel
+const svg6 = d3.select("#table")
+  .append("svg")
+  .attr("width", totalWidth)
+  .attr("height", totalHeight);
+
+// Adăugați antetele tabelului
+const headers = ["Religie", "Numar", "Procent"];
+svg6.selectAll(".header")
+  .data(headers)
+  .enter()
+  .append("text")
+  .attr("class", "header")
+  .attr("x", (d, i) => tableMargin.left + i * (cellWidth + tableMargin.left) + cellWidth / 2) // Alinează la mijloc
+  .attr("y", tableMargin.top)
+  .text(d => d)
+  .attr("font-family", "Bahnschrift")
+  .attr("text-anchor", "middle")
+  .attr("dominant-baseline", "middle");
+
+// Adăugați rânduri pentru fiecare intrare din date
+const rows = svg6.selectAll("g.row")
+  .data(data)
+  .enter()
+  .append("g")
+  .attr("class", "row")
+  .attr("transform", (d, i) => `translate(0, ${tableMargin.top + (i + 1) * (cellHeight + tableMargin.top)})`);
+
+// Adăugați celule pentru fiecare coloană din fiecare rând
+rows.selectAll(".cell")
+  .data(d => [d.Religie, d.numar])
+  .enter()
+  .append("rect")
+  .attr("class", "cell")
+  .attr("x", (d, i) => tableMargin.left + i * (cellWidth + tableMargin.left))
+  .attr("y", 0)
+  .attr("width", cellWidth)
+  .attr("height", cellHeight)
+  .attr("fill", "none")
+  .attr("stroke", "black")
+  .attr("stroke-width", 1);
+
+// Adăugați textul în fiecare celulă
+rows.selectAll("text")
+  .data(d => [d.Religie, d.numar, d.procent])
+  .enter()
+  .append("text")
+  .attr("x", (d, i) => tableMargin.left + i * (cellWidth + tableMargin.left) + cellWidth / 2)
+  .attr("y", cellHeight / 2)
+  .attr("text-anchor", "middle")
+  .attr("dominant-baseline", "middle")
+  .text(d => d)
+  .style("font-size", "14px")
+  .attr("font-family", "Bahnschrift");
+// Dimensiunile graficului și marginile
+const width7 = 1000;
+const height7 = 400;
+const margin7= { top: 40, right: 20, bottom: 30, left: 50 };
+
+// Creați elementul SVG
+const svg7 = d3.select("#chart6")
+  .append("svg")
+  .attr("width", width7)
+  .attr("height", height7);
+
+const tooltip = d3.select("body").append("div")
+  .attr("class", "tooltip")
+  .style("position", "absolute")
+  .style("background-color", "white")
+  .style("border", "1px solid #ccc")
+  .style("padding", "10px")
+  .style("border-radius", "5px")
+  .style("pointer-events", "none")
+  .style("opacity", 0)
+  .style("font-family", "Bahnschrift")
+  .style("font-size", "12px");
+
+// Încărcați datele GeoJSON din GeoServer
+d3.json("divorturi.geojson")
+  .then(function(data) {
+    // Extrageți datele necesare pentru graficul de bare și convertiți valorile în numere
+    const barData = data.features.map(feature => ({
+      x: feature.properties.an,
+      y: parseInt(feature.properties.divorturi)
+    }));
+
+    // Definiți scala pentru axa y
+    const yScale = d3.scaleLinear()
+      .domain([0, d3.max(barData, d => d.y)])
+      .nice()
+      .range([height7 - margin7.bottom, margin7.top]);
+
+    // Definiți scala pentru axa x (scala bandă pentru categorii)
+    const xScale = d3.scaleBand()
+      .domain(barData.map(d => d.x))
+      .range([margin7.left, width7 - margin7.right])
+      .padding(0.1);
+
+    // Adăugați barele la grafic
+    svg7.selectAll("rect")
+      .data(barData)
+      .enter()
+      .append("rect")
+      .attr("x", d => xScale(d.x))
+      .attr("y", d => yScale(0))
+      .attr("width", xScale.bandwidth())
+      .attr("height", 0)
+      .attr("fill", d3.scaleSequential(d3.interpolatePuBu)
+                     .domain([0, d3.max(barData, d => d.y)]))
+      // Adăugați tranziții pentru bare
+      .transition()
+      .duration(800)
+      .attr("y", d => yScale(d.y))
+      .attr("height", d => height7 - margin7.bottom - yScale(d.y));
+
+    // Adăugați eveniment de tip hover pentru fiecare bară
+    svg7.selectAll("rect")
+      .on("mouseover", function(event, d) {
+        d3.select(this).attr("fill", "orange");
+        tooltip.transition()
+               .duration(200)
+               .style("opacity", .9);
+        tooltip.html(`An: ${d.x}<br>Divorțuri: ${d.y}`)
+               .style("left", (event.pageX + 5) + "px")
+               .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseout", function(event, d) {
+        d3.select(this).attr("fill", d3.scaleSequential(d3.interpolatePuBu)
+                                       .domain([0, d3.max(barData, d => d.y)])(d.y));
+        tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+      });
+
+    // Adăugați axa x
+    svg7.append("g")
+      .attr("transform", `translate(0,${height7 - margin7.bottom})`)
+      .call(d3.axisBottom(xScale))
+      .selectAll("text")
+      .attr("transform", "rotate(-45)")
+      .style("text-anchor", "end");
+
+    // Adăugați axa y
+    svg7.append("g")
+      .attr("transform", `translate(${margin7.left},0)`)
+      .call(d3.axisLeft(yScale));
+
+    // Adăugați titlul graficului
+    svg7.append("text")
+      .attr("x", width7 / 2)
+      .attr("y", margin7.top / 2)
+      .attr("text-anchor", "middle")
+      .style("font-size", "18px")
+      .style("font-family", "Bahnschrift")
+      .text("Evolutia numarului de divorturi");
+
+  })
+  .catch(function(error) {
+    console.log("Eroare la încărcarea datelor:", error);
+  });
+
+ 
+// Selectați elementul ceasului
+const clock = d3.select("#clock");
+
+// Funcție pentru actualizarea timpului în timp real
+function updateClock() {
+    const now = new Date(); // Obțineți data și ora curentă
+
+    // Construiți șirul de timp
+    const timeString = now.toLocaleTimeString();
+    const dateString = now.toLocaleDateString();
+    const dateTimeString = `${timeString} - ${dateString}`;
+
+    // Actualizați conținutul ceasului
+    clock.text(dateTimeString);
+}
+
+// Actualizați ceasul la fiecare secundă
+setInterval(updateClock, 1000);
+
+// Inițializați ceasul la încărcarea paginii
+updateClock();
+
+// Încarcă datele GeoJSON din GeoServer
+d3.json("vecini_moara_vlasiei.geojson")
+  .then(function(data) {
+    // Callback pentru gestionarea datelor încărcate
+    // Desenează harta folosind D3.js
+    console.log(data);
+    var svg11 = d3.select("#chart7")
+                .append("svg")
+                .attr("width", 500)
+                .attr("height", 415);
+
+    var projection = d3.geoMercator()
+                       .fitSize([500, 500], data);
+
+    var path = d3.geoPath()
+                 .projection(projection);
+
+    // Definește o funcție care să returneze culoarea în funcție de proprietatea din GeoJSON
+    function getColor(feature) {
+        // Aici poți defini regulile pentru atribuirea culorilor în funcție de proprietatea dorită
+        var propertyValue = feature.properties.name; // înlocuiește "propertyName" cu numele proprietății din GeoJSON
+
+        // Exemplu de atribuire de culori bazată pe valoarea unei proprietăți
+        if (propertyValue === "Moara Vlăsiei") {
+            return "yellow";
+        } else {
+            return "steelblue"; // pentru alte valori, poți seta o altă culoare sau să lași implicit
+        }
+    }           
+
+    svg11.selectAll("path")
+       .data(data.features)
+       .enter()
+       .append("path")
+       .attr("d", path)
+       .style("fill", function(d) { return getColor(d); })
+       .style("stroke", "white");
+
+    // Adaugă etichete pentru obiectele GeoJSON
+    svg11.selectAll("text")
+        .data(data.features)
+        .enter()
+        .append("text")
+        .attr("x", function(d) { return path.centroid(d)[0]; }) // Coordonata x a centrului obiectului
+        .attr("y", function(d) { return path.centroid(d)[1]; }) // Coordonata y a centrului obiectului
+        .text(function(d) { return d.properties.name; }) // Afișează numele obiectului sau altă proprietate relevantă
+        .attr("text-anchor", "middle") // Aliniere text la mijloc
+        .attr("font-size", "10px")// Dimensiune font etichetă
+        .attr("font-family", "Bahnschrift, sans-serif"); // Fontul Bahnschrift
+})
+.catch(function(error) {
+    // Tratează eventualele erori în încărcarea datelor
+    console.error("Eroare în încărcarea datelor GeoJSON:", error);
+});
+    </script>
+</body>
+</html>
